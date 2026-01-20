@@ -2,6 +2,8 @@ import Header from "./components/Header";
 import DepartmentSection from "./components/DepartmentSection";
 import Footer from "./components/Footer";
 import type { Department } from "./types/Department";
+import './App.css';
+
 
 const departments: Department[] = [
   {
