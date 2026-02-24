@@ -1,27 +1,9 @@
+import { employeeRepo } from "../repositories/employeeRepo";
 import DepartmentSection from "../components/DepartmentSection";
-import type { Department } from "../types/Department";
-
-const departments: Department[] = [
-  {
-    name: "Finance",
-    employees: [
-      { firstName: "Paramdeep", lastName: "Singh" },
-      { firstName: "Arsh", lastName: "Gill" },
-      { firstName: "Manjot", lastName: "Dhanoa" },
-      { firstName: "Manpreet", lastName: "Singh" },
-      { firstName: "Gurmukh", lastName: "Sidhu" }
-    ]
-  },
-  {
-    name: "Marketing",
-    employees: [
-      { firstName: "Winder", lastName: "Dhillon" },
-      { firstName: "Tarni", lastName: "Dhillon" }
-    ]
-  }
-];
 
 export default function Employees() {
+  const departments = employeeRepo.getDepartments();
+
   return (
     <main className="employees-page">
       <header className="employees-header">
@@ -31,7 +13,7 @@ export default function Employees() {
 
       <section className="departments-container">
         {departments.map((dept) => (
-          <div key={dept.name} className="department-wrapper">
+          <div key={dept.id} className="department-wrapper">
             <h2 className="department-title">
               {dept.name} Department
               <span className="employee-count">
