@@ -9,11 +9,19 @@ header {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.logo {
-  width: 120px;
-  height: auto;
-  transition: transform 0.3s ease, filter 0.3s ease;
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
 }
+
+.logo {
+  height: 48px;
+  width: auto;
+}
+
+
 
 .logo:hover {
   transform: scale(1.05);
