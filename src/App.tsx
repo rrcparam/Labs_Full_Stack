@@ -4,7 +4,7 @@ import DepartmentSection from "./components/DepartmentSection";
 import Footer from "./components/Footer";
 import AddEmployeeForm from "./components/AddEmployeeForm";
 import type { Department } from "./types/Department";
-import './App.css';
+import "./App.css";
 
 export default function App() {
   const [departments, setDepartments] = useState<Department[]>([
