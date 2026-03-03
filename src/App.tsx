@@ -1,36 +1,20 @@
-import { useState } from "react";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import DepartmentSection from "./components/DepartmentSection";
-import AddEmployeeForm from "./components/AddEmployeeForm";
-import { employeeRepo } from "./repositories/employeeRepo";
-import type { Department } from "./types/Department";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "./layout/MainLayout";
+import Employees from "./pages/Employees";
+import Organization from "./pages/Organization";
 import "./App.css";
 
 export default function App() {
-  const [departments, setDepartments] = useState<Department[]>(
-    employeeRepo.getDepartments()
-  );
-
   return (
-    <>
-      <Header />
-
-      <main>
-        {departments.map((dept) => (
-          <DepartmentSection
-            key={dept.id}
-            department={dept}
-          />
-        ))}
-
-        <AddEmployeeForm
-          departments={departments}
-          onUpdate={setDepartments}
-        />
-      </main>
-
-      <Footer />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Navigate to="/employees" replace />} />
+          <Route path="/employees" element={<Employees />} />
+          <Route path="/organization" element={<Organization />} />
+          <Route path="*" element={<Navigate to="/employees" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -1,26 +1,41 @@
-import { Role } from "../types/Role";
+import { useState } from "react";
+import type { Role } from "../types/Role";
+import { roleRepo } from "../repositories/roleRepo";
+import AddRoleForm from "../components/AddRoleForm";
+import { useCreateRole } from "../hooks/useCreateRole";
 
-const leadership: Role[] = [
-  { firstName: "Param", lastName: "Singh", role: "Chief Executive Officer" },
-  { firstName: "Dilpreet", lastName: "Lee", role: "Chief Technology Officer" },
-  { firstName: "Morgan", lastName: "Patel", role: "Chief Financial Officer" },
-  { firstName: "Taylor", lastName: "Reed", role: "Director of Operations" }
-];
+export default function Organization() {
+  const [roles, setRoles] = useState<Role[]>(roleRepo.getRoles());
 
-const Organization = () => {
+  const form = useCreateRole({ onUpdate: setRoles });
+
   return (
-    <div>
-      <h2>Organization Leadership</h2>
-      <div>
-        {leadership.map((person, idx) => (
-          <div key={idx} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
-            <span>{person.firstName} {person.lastName}</span>
-            <span>{person.role}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+    <main className="employees-page">
+      <header className="employees-header">
+        <h1>Organization Leadership</h1>
+        <p>Add leadership roles (Role must be unique).</p>
+      </header>
 
-export default Organization;
+      <AddRoleForm
+        firstName={form.firstName}
+        lastName={form.lastName}
+        roleName={form.roleName}
+        onSubmit={form.handleSubmit}
+      />
+
+      <section className="departments-container">
+        {roles.length === 0 ? (
+          <p>No roles yet.</p>
+        ) : (
+          <ul>
+            {roles.map((r) => (
+              <li key={r.id}>
+                <b>{r.role}</b> — {r.firstName} {r.lastName}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </main>
+  );
+}

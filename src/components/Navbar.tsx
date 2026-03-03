@@ -1,12 +1,20 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import "./Navbar.css";
 
-const Navbar = () => {
+export default function Navbar() {
   return (
-    <nav style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
-      <Link to="/employees">Employees</Link>
-      <Link to="/organization">Organization</Link>
+    <nav className="navbar">
+      <h2 className="logo">Pixell River</h2>
+
+      <div className="links">
+        <NavLink to="/employees" className={({ isActive }) => (isActive ? "active" : "")}>
+          Employees
+        </NavLink>
+
+        <NavLink to="/organization" className={({ isActive }) => (isActive ? "active" : "")}>
+          Organization
+        </NavLink>
+      </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
