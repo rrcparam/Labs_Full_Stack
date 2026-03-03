@@ -1,0 +1,30 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #ddd;
+  background: white;
+}
+
+.logo {
+  margin: 0;
+  font-size: 18px;
+}
+
+.links {
+  display: flex;
+  gap: 14px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #222;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.links a.active {
+  background: #222;
+  color: white;
+}
