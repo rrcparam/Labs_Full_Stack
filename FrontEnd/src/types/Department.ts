@@ -1,7 +1,10 @@
-import type { Employee } from "./Employee";
+export type Employee = {
+  firstName: string;
+  lastName: string;
+};
 
-export interface Department {
+export type Department = {
+  id: number;
   name: string;
   employees: Employee[];
-}
-
+};
