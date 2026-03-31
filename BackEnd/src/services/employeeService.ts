@@ -1,22 +1,18 @@
-import { employeeRepository } from "../repositories/employeeRepository";
+import { getAllEmployees, createEmployee } from "../repositories/employeeRepository";
 
-export const employeeService = {
-  getDepartments() {
-    return employeeRepository.getDepartments();
-  },
+export const fetchEmployees = async () => {
+  return getAllEmployees();
+};
 
-  addEmployee(firstName: string, lastName: string, departmentId: number) {
-    const f = firstName.trim();
-    const l = lastName.trim();
-
-    if (f.length < 2) {
-      throw new Error("First name must be at least 2 characters.");
-    }
-
-    if (!l) {
-      throw new Error("Last name is required.");
-    }
-
-    return employeeRepository.addEmployee(f, l, departmentId);
+export const addEmployee = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  roleId: number
+) => {
+  if (!firstName || !lastName || !email || !roleId) {
+    throw new Error("All employee fields are required");
   }
+
+  return createEmployee(firstName, lastName, email, roleId);
 };

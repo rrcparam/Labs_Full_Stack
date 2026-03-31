@@ -1,28 +1,13 @@
-import { roles } from "../data/roleData";
-import type { Role } from "../types/Role";
+import prisma from "../lib/prisma";
 
-let nextRoleId = 3;
+export const getAllRoles = async () => {
+  return prisma.role.findMany({
+    orderBy: { id: "asc" },
+  });
+};
 
-export const roleRepository = {
-  getRoles(): Role[] {
-    return roles;
-  },
-
-  roleExists(roleName: string): boolean {
-    return roles.some(
-      (r) => r.role.trim().toLowerCase() === roleName.trim().toLowerCase()
-    );
-  },
-
-  addRole(firstName: string, lastName: string, roleName: string): Role[] {
-    const newRole: Role = {
-      id: nextRoleId++,
-      firstName,
-      lastName,
-      role: roleName
-    };
-
-    roles.push(newRole);
-    return roles;
-  }
+export const createRole = async (title: string, department: string) => {
+  return prisma.role.create({
+    data: { title, department },
+  });
 };

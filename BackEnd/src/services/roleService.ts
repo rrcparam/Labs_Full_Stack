@@ -1,31 +1,13 @@
-import { roleRepository } from "../repositories/roleRepository";
+import { getAllRoles, createRole } from "../repositories/roleRepository";
 
-export const roleService = {
-  getRoles() {
-    return roleRepository.getRoles();
-  },
+export const fetchRoles = async () => {
+  return getAllRoles();
+};
 
-  addRole(firstName: string, lastName: string, roleName: string) {
-    const f = firstName.trim();
-    const l = lastName.trim();
-    const r = roleName.trim();
-
-    if (f.length < 3) {
-      throw new Error("First name must be at least 3 characters.");
-    }
-
-    if (!l) {
-      throw new Error("Last name is required.");
-    }
-
-    if (!r) {
-      throw new Error("Role is required.");
-    }
-
-    if (roleRepository.roleExists(r)) {
-      throw new Error("That role is already occupied.");
-    }
-
-    return roleRepository.addRole(f, l, r);
+export const addRole = async (title: string, department: string) => {
+  if (!title || !department) {
+    throw new Error("Title and department are required");
   }
+
+  return createRole(title, department);
 };

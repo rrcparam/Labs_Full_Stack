@@ -1,28 +1,25 @@
-import { departments } from "../data/employeeData";
-import type { Department } from "../types/Department";
-import type { Employee } from "../types/Employee";
+import prisma from "../lib/prisma";
 
-let nextEmployeeId = 4;
+export const getAllEmployees = async () => {
+  return prisma.employee.findMany({
+    include: { role: true },
+    orderBy: { id: "asc" },
+  });
+};
 
-export const employeeRepository = {
-  getDepartments(): Department[] {
-    return departments;
-  },
-
-  addEmployee(firstName: string, lastName: string, departmentId: number): Department[] {
-    const dept = departments.find((d) => d.id === departmentId);
-
-    if (!dept) {
-      throw new Error("Department not found.");
-    }
-
-    const newEmployee: Employee = {
-      id: nextEmployeeId++,
+export const createEmployee = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  roleId: number
+) => {
+  return prisma.employee.create({
+    data: {
       firstName,
-      lastName
-    };
-
-    dept.employees.push(newEmployee);
-    return departments;
-  }
+      lastName,
+      email,
+      roleId,
+    },
+    include: { role: true },
+  });
 };
