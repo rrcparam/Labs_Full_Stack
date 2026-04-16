@@ -9,13 +9,17 @@ export const roleRepo = {
     return res.json();
   },
 
-  async addRole(role: { title: string }) {
+  async addRole(
+    role: { title: string; department: string },
+    token: string | null
+  ) {
     const res = await fetch("http://localhost:3001/roles", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(role)
+      body: JSON.stringify(role),
     });
 
     if (!res.ok) {
@@ -23,5 +27,5 @@ export const roleRepo = {
     }
 
     return res.json();
-  }
+  },
 };
