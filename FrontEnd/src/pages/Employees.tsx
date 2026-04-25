@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, useAuth } from "@clerk/clerk-react";
-import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AuthRequiredNotice from "../components/AuthRequiredNotice";
 
 type Employee = {
@@ -19,103 +19,95 @@ type Role = {
 };
 
 export default function Employees() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [roleId, setRoleId] = useState("");
   const { getToken } = useAuth();
-
+  const queryClient = useQueryClient();
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-  useEffect(() => {
-    fetch(`${apiUrl}/employees`)
-      .then((res) => res.json())
-      .then(setEmployees)
-      .catch(console.error);
+  const employeesQuery = useQuery<Employee[]>({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await fetch(`${apiUrl}/employees`);
+      if (!res.ok) throw new Error("Failed to fetch employees");
+      return res.json();
+    },
+  });
 
-    fetch(`${apiUrl}/roles`)
-      .then((res) => res.json())
-      .then(setRoles)
-      .catch(console.error);
-  }, [apiUrl]);
+  const rolesQuery = useQuery<Role[]>({
+    queryKey: ["roles"],
+    queryFn: async () => {
+      const res = await fetch(`${apiUrl}/roles`);
+      if (!res.ok) throw new Error("Failed to fetch roles");
+      return res.json();
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const createEmployeeMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const token = await getToken();
 
-    const token = await getToken();
+      const payload = {
+        firstName: String(formData.get("firstName")),
+        lastName: String(formData.get("lastName")),
+        email: String(formData.get("email")),
+        roleId: Number(formData.get("roleId")),
+      };
 
-    const response = await fetch(`${apiUrl}/employees`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        roleId: Number(roleId),
-      }),
-    });
+      const res = await fetch(`${apiUrl}/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      alert(errorData.error || "Failed to create employee");
-      return;
-    }
+      if (!res.ok) throw new Error("Failed to create employee");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
 
-    const newEmployee = await response.json();
-    setEmployees((prev) => [...prev, newEmployee]);
+  if (employeesQuery.isLoading || rolesQuery.isLoading) {
+    return <p>Loading data...</p>;
+  }
 
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setRoleId("");
-  };
+  if (employeesQuery.isError || rolesQuery.isError) {
+    return <p>Failed to load data.</p>;
+  }
+
+  const employees = employeesQuery.data ?? [];
+  const roles = rolesQuery.data ?? [];
 
   return (
-    <div>
+    <section>
       <h1>Employees</h1>
 
       <ul>
         {employees.map((employee) => (
           <li key={employee.id}>
-            {employee.firstName} {employee.lastName} - {employee.email} - {employee.roleTitle}
+            {employee.firstName} {employee.lastName} - {employee.email} -{" "}
+            {employee.roleTitle} ({employee.department})
           </li>
         ))}
       </ul>
 
       <SignedIn>
-        <form onSubmit={handleSubmit}>
-          <h2>Add Employee</h2>
+        <h2>Add Employee</h2>
 
-          <input
-            type="text"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            createEmployeeMutation.mutate(new FormData(e.currentTarget));
+            e.currentTarget.reset();
+          }}
+        >
+          <input name="firstName" placeholder="First Name" required />
+          <input name="lastName" placeholder="Last Name" required />
+          <input name="email" type="email" placeholder="Email" required />
 
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <select value={roleId} onChange={(e) => setRoleId(e.target.value)} required>
+          <select name="roleId" required>
             <option value="">Select Role</option>
             {roles.map((role) => (
               <option key={role.id} value={role.id}>
@@ -124,13 +116,15 @@ export default function Employees() {
             ))}
           </select>
 
-          <button type="submit">Create Employee</button>
+          <button type="submit" disabled={createEmployeeMutation.isPending}>
+            {createEmployeeMutation.isPending ? "Creating..." : "Create Employee"}
+          </button>
         </form>
       </SignedIn>
 
       <SignedOut>
         <AuthRequiredNotice />
       </SignedOut>
-    </div>
+    </section>
   );
 }
